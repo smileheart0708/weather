@@ -126,6 +126,7 @@ body::before {
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
+    width: 100%;
 }
 
 .search-box:focus-within {
@@ -140,7 +141,7 @@ body::before {
     padding: 15px 20px;
     color: white;
     font-size: 16px;
-    width: 300px;
+    flex: 1;
     border-radius: 20px;
 }
 
@@ -518,12 +519,11 @@ body::before {
     }
     
     #cityInput {
-        width: 250px;
+        flex: 1;
     }
     
     .search-box {
         width: 100%;
-        max-width: 350px;
     }
 }
 
@@ -548,8 +548,13 @@ body::before {
         font-size: 4rem;
     }
     
+    .search-box {
+        width: 100%;
+        margin: 0 10px;
+    }
+    
     #cityInput {
-        width: 200px;
+        flex: 1;
         font-size: 14px;
     }
     
