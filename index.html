@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="weather-container">
@@ -80,8 +81,8 @@
         <!-- 5天天气预报 -->
         <div class="forecast-section">
             <h3><i class="fas fa-calendar-alt"></i> 5天预报</h3>
-            <div class="forecast-grid" id="forecastGrid">
-                <!-- 预报项目将通过JavaScript动态生成 -->
+            <div class="forecast-chart-container">
+                <canvas id="forecastChart"></canvas>
             </div>
         </div>
 

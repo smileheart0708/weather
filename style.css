@@ -429,62 +429,13 @@ body::before {
     gap: 10px;
 }
 
-.forecast-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
-}
-
-.forecast-item {
+.forecast-chart-container {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 15px;
     padding: 25px;
-    text-align: center;
-    transition: all 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.forecast-item:hover {
-    background: rgba(255, 255, 255, 0.2);
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.forecast-date {
-    color: white;
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 10px;
-}
-
-.forecast-weather {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 1rem;
-    margin-bottom: 15px;
-}
-
-.forecast-temps {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.high-temp {
-    color: white;
-    font-size: 1.5rem;
-    font-weight: 600;
-}
-
-.low-temp {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.2rem;
-}
-
-.forecast-details {
-    font-size: 0.9rem;
-    color: rgba(255, 255, 255, 0.7);
-    line-height: 1.4;
+    position: relative;
+    height: 400px;
 }
 
 /* 加载动画 */
@@ -561,8 +512,9 @@ body::before {
         grid-template-columns: 1fr;
     }
     
-    .forecast-grid {
-        grid-template-columns: 1fr;
+    .forecast-chart-container {
+        height: 300px;
+        padding: 20px;
     }
     
     #cityInput {

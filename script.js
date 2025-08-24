@@ -1,6 +1,7 @@
 class WeatherApp {
     constructor() {
         this.currentCity = '福清';
+        this.forecastChart = null;
         this.initializeElements();
         this.bindEvents();
         this.loadWeatherData();
@@ -46,7 +47,7 @@ class WeatherApp {
             travelDesc: document.getElementById('travelDesc'),
             
             // 预报
-            forecastGrid: document.getElementById('forecastGrid'),
+            forecastChart: document.getElementById('forecastChart'),
             
             // 加载动画
             loadingSpinner: document.getElementById('loadingSpinner')
@@ -159,7 +160,11 @@ class WeatherApp {
         // 更新温度信息
         const temp = realtime.temperature === 999 ? '--' : `${realtime.temperature}`;
         this.elements.currentTemp.textContent = temp + '°';
-        this.elements.feelsLike.textContent = `体感温度：${realtime.temperature_feels_like}°`;
+        
+        // 转换体感温度从华氏度到摄氏度
+        const feelsLikeCelsius = realtime.temperature_feels_like === 999 ? '--' : 
+            ((realtime.temperature_feels_like - 32) * 5 / 9).toFixed(1);
+        this.elements.feelsLike.textContent = `体感温度：${feelsLikeCelsius}°`;
         this.elements.weatherDesc.textContent = realtime.weather;
         
         // 更新天气图标
@@ -218,36 +223,132 @@ class WeatherApp {
             return;
         }
 
-        this.elements.forecastGrid.innerHTML = '';
-        
-        data.forecast.forEach(day => {
-            const forecastItem = this.createForecastItem(day);
-            this.elements.forecastGrid.appendChild(forecastItem);
-        });
+        this.createForecastChart(data.forecast);
     }
 
-    createForecastItem(dayData) {
-        const div = document.createElement('div');
-        div.className = 'forecast-item';
+    createForecastChart(forecastData) {
+        const ctx = this.elements.forecastChart.getContext('2d');
         
-        div.innerHTML = `
-            <div class="forecast-date">${dayData.date_desc}</div>
-            <div class="forecast-weather">
-                ${dayData.weather_day}${dayData.weather_day !== dayData.weather_night ? ' 转 ' + dayData.weather_night : ''}
-            </div>
-            <div class="forecast-temps">
-                <span class="high-temp">${dayData.temperature_high}°</span>
-                <span class="low-temp">${dayData.temperature_low}°</span>
-            </div>
-            <div class="forecast-details">
-                <div>风向：${dayData.wind_direction_day}</div>
-                <div>风力：${dayData.wind_strength_day}</div>
-                <div>湿度：${dayData.humidity}%</div>
-                ${dayData.rainfall ? `<div>降水：${dayData.rainfall}mm</div>` : ''}
-            </div>
-        `;
-        
-        return div;
+        // 如果已存在图表，先销毁
+        if (this.forecastChart) {
+            this.forecastChart.destroy();
+        }
+
+        // 存储预报数据供tooltip使用
+        this.currentForecastData = forecastData;
+
+        const labels = forecastData.map(day => day.date_desc);
+        const highTemps = forecastData.map(day => day.temperature_high);
+        const lowTemps = forecastData.map(day => day.temperature_low);
+
+        this.forecastChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: '最高温度',
+                    data: highTemps,
+                    borderColor: 'rgba(255, 255, 255, 0.9)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(255, 255, 255, 1)',
+                    pointBorderColor: 'rgba(255, 255, 255, 1)',
+                    pointRadius: 6,
+                    pointHoverRadius: 8
+                }, {
+                    label: '最低温度',
+                    data: lowTemps,
+                    borderColor: 'rgba(255, 255, 255, 0.6)',
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointBackgroundColor: 'rgba(255, 255, 255, 0.8)',
+                    pointBorderColor: 'rgba(255, 255, 255, 0.8)',
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: {
+                        display: true,
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                size: 12,
+                                family: 'Poppins'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)'
+                        }
+                    },
+                    y: {
+                        display: true,
+                        ticks: {
+                            color: 'rgba(255, 255, 255, 0.8)',
+                            font: {
+                                size: 12,
+                                family: 'Poppins'
+                            },
+                            callback: function(value) {
+                                return value + '°';
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            borderColor: 'rgba(255, 255, 255, 0.2)'
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            font: {
+                                size: 14,
+                                family: 'Poppins'
+                            },
+                            usePointStyle: true,
+                            pointStyle: 'circle'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: 'white',
+                        bodyColor: 'white',
+                        borderColor: 'rgba(255, 255, 255, 0.2)',
+                        borderWidth: 1,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                            afterBody: (tooltipItems) => {
+                                const index = tooltipItems[0].dataIndex;
+                                const dayData = this.currentForecastData[index];
+                                return [
+                                    `天气: ${dayData.weather_day}`,
+                                    `湿度: ${dayData.humidity}%`,
+                                    `风向: ${dayData.wind_direction_day}`,
+                                    `风力: ${dayData.wind_strength_day}`
+                                ];
+                            }
+                        }
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
     }
 
     updateWeatherIcon(weatherCode) {
